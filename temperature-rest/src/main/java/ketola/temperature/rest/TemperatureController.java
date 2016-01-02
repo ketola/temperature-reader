@@ -13,14 +13,21 @@ import ketola.temperature.reader.TemperatureReaderSerialPortImpl;
 @RestController
 public class TemperatureController implements TemperatureObserver {
 
-	private Temperature latestOutside = new Temperature();
-	private Temperature latestInside = new Temperature();
+	private Temperature latestOutside = createDefaultTemperature();
+
+	private Temperature latestInside = createDefaultTemperature();
 
 	private TemperatureReader reader;
 
 	public TemperatureController() {
 		this.reader = new TemperatureReaderSerialPortImpl("COM3");
 		this.reader.registerObserver(this);
+	}
+
+	private Temperature createDefaultTemperature() {
+		Temperature temperature = new Temperature();
+		temperature.setValue(100d);
+		return temperature;
 	}
 
 	@RequestMapping("/latest/outside")

@@ -13,8 +13,15 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
    
      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-resource.min.js"></script>
+     
+     <script src="http://code.highcharts.com/highcharts.js"></script>
+     <script src="http://code.highcharts.com/highcharts-more.js"></script>
+     
+     <script src="http://code.highcharts.com/modules/solid-gauge.src.js"></script>
+     <script src="https://rawgit.com/pablojim/highcharts-ng/master/src/highcharts-ng.js"></script>
      <script src="js/temperature.js"></script>
+     
+    
    </head>
    <body>
      <h2>Temperature</h2>
@@ -25,6 +32,7 @@
 					<h3 class="panel-title">Inside</h3>
 				</div>
 				<div class="panel-body">{{temperatureInside.value}} C</div>
+				<highchart id="chart1" config="chartConfigInside" class="span10"></highchart>
 			</div>
        </div>
        <div class="outside col-md-6">
@@ -33,6 +41,7 @@
 					<h3 class="panel-title">Outside</h3>
 				</div>
 				<div class="panel-body">{{temperatureOutside.value}} C</div>
+				<highchart id="chart1" config="chartConfigOutside" class="span10"></highchart>
 			</div>
        </div>
      </div>
