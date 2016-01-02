@@ -1,8 +1,10 @@
 package ketola.temperature.reader;
 
+import static java.util.Collections.synchronizedCollection;
+
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Set;
 
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
@@ -15,10 +17,10 @@ public class TemperatureReaderSerialPortImpl implements TemperatureReader {
 	private static final String DEVICE_INSIDE = "002";
 	private static final String DEVICE_OUTSIDE = "001";
 
-	private Set<TemperatureObserver> observers;
+	private Collection<TemperatureObserver> observers;
 
 	public TemperatureReaderSerialPortImpl(String port) {
-		this.observers = new HashSet<TemperatureObserver>();
+		this.observers = synchronizedCollection(new HashSet<TemperatureObserver>());
 		try {
 			createAndConfigureSerialPort(port);
 		} catch (SerialPortException e) {
@@ -57,12 +59,18 @@ public class TemperatureReaderSerialPortImpl implements TemperatureReader {
 	}
 
 	private void notifyObservers(Temperature temperature) {
-		for (TemperatureObserver observer : observers) {
-			observer.onTemperatureRead(temperature);
+		synchronized (observers) {
+			for (TemperatureObserver observer : observers) {
+				observer.onTemperatureRead(temperature);
+			}
 		}
 	}
 
 	protected Temperature toTemperature(String message) {
+
+		if (message == null || message.isEmpty())
+			return new Temperature();
+
 		message = message.replaceAll("\r\n|\n|\r", "");
 
 		String system = message.substring(8, 11);
@@ -79,13 +87,17 @@ public class TemperatureReaderSerialPortImpl implements TemperatureReader {
 
 	@Override
 	public void registerObserver(TemperatureObserver observer) {
-		observers.add(observer);
+		synchronized (observers) {
+			observers.add(observer);
+		}
 	}
 
 	@Override
 	public void unregisterObserver(TemperatureObserver observer) {
-		if (observers.contains(observer))
-			observers.remove(observer);
+		synchronized (observers) {
+			if (observers.contains(observer))
+				observers.remove(observer);
+		}
 
 	}
 
