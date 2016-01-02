@@ -25,7 +25,7 @@ public class TemperatureEmitter extends SseEmitter implements TemperatureObserve
 		try {
 			send(temperature);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
 	}
 
