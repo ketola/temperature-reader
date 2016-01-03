@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
@@ -13,6 +16,7 @@ import jssc.SerialPortException;
 import ketola.temperature.reader.Temperature.Source;
 
 public class TemperatureReaderSerialPortImpl implements TemperatureReader {
+	private static final Logger LOG = LoggerFactory.getLogger(TemperatureReaderSerialPortImpl.class);
 
 	private static final String DEVICE_INSIDE = "002";
 	private static final String DEVICE_OUTSIDE = "001";
@@ -20,6 +24,7 @@ public class TemperatureReaderSerialPortImpl implements TemperatureReader {
 	private Collection<TemperatureObserver> observers;
 
 	public TemperatureReaderSerialPortImpl(String port) {
+		LOG.info("Construct TemperatureReaderSerialPortImpl with serial port {}", port);
 		this.observers = synchronizedCollection(new HashSet<TemperatureObserver>());
 		try {
 			createAndConfigureSerialPort(port);
@@ -34,6 +39,7 @@ public class TemperatureReaderSerialPortImpl implements TemperatureReader {
 			serialPort.openPort();
 			serialPort.setParams(9600, 8, 1, 0);
 		} catch (SerialPortException e) {
+			LOG.error("SerialPortException caught", e);
 			throw new RuntimeException(e);
 		}
 
@@ -48,7 +54,9 @@ public class TemperatureReaderSerialPortImpl implements TemperatureReader {
 							String message = new String(buffer);
 							notifyObservers(toTemperature(message));
 						} catch (SerialPortException ex) {
-							ex.printStackTrace();
+							LOG.error("SerialPortException caught", ex);
+						} catch (Exception e) {
+							LOG.error("Exception caught", e);
 						}
 					}
 				}
@@ -67,9 +75,12 @@ public class TemperatureReaderSerialPortImpl implements TemperatureReader {
 	}
 
 	protected Temperature toTemperature(String message) {
+		if (message == null || message.isEmpty() || message.length() < 17) {
+			LOG.error("Message is not in a valid format ({})", message);
+		}
 
-		if (message == null || message.isEmpty())
-			return new Temperature();
+		message = message.trim();
+		LOG.debug("Convert message {}", message);
 
 		message = message.replaceAll("\r\n|\n|\r", "");
 
@@ -100,5 +111,4 @@ public class TemperatureReaderSerialPortImpl implements TemperatureReader {
 		}
 
 	}
-
 }

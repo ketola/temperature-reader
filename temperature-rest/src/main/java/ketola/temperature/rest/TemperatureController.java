@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +22,8 @@ import ketola.temperature.reader.TemperatureReaderSerialPortImpl;
 
 @RestController
 public class TemperatureController implements TemperatureObserver {
+
+	private static final Logger LOG = LoggerFactory.getLogger(TemperatureController.class);
 
 	private static final int HISTORY_MAX_SIZE = 100;
 	private Temperature latestOutside = createDefaultTemperature();
@@ -47,32 +51,39 @@ public class TemperatureController implements TemperatureObserver {
 
 	@RequestMapping("/latest/outside")
 	public Temperature getLatestReadingInside() {
+		LOG.debug("GET /latest/outside");
 		return latestOutside;
 	}
 
 	@RequestMapping("/latest/inside")
 	public Temperature getLatestReadingOutside() {
+		LOG.debug("GET /latest/inside");
 		return latestInside;
 	}
 
 	@RequestMapping("/history/outside")
 	public List<Temperature> getHistoryOutside() {
+		LOG.debug("GET /history/outside");
 		return historyOutside;
 	}
 
 	@RequestMapping("/history/inside")
 	public List<Temperature> getHistoryInside() {
+		LOG.debug("GET /history/inside");
 		return historyInside;
 	}
 
 	@RequestMapping("/latest/sse")
 	public SseEmitter getLatestReadingSse() {
+		LOG.debug("GET /latest/sse");
 		TemperatureEmitter sseEmitter = new TemperatureEmitter(reader);
 		return sseEmitter;
 	}
 
 	@Override
 	public void onTemperatureRead(Temperature temperature) {
+		LOG.debug("New temperature {}", temperature);
+
 		if (temperature.getSource() == Source.INSIDE) {
 			this.latestInside = temperature;
 			saveToHistory(temperature, this.historyInside);
