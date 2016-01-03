@@ -28,8 +28,13 @@ public class TemperatureController implements TemperatureObserver {
 	private TemperatureReader reader;
 
 	public TemperatureController() {
-		this.reader = new TemperatureReaderSerialPortImpl("COM3");
+		this.reader = new TemperatureReaderSerialPortImpl(getSerialPort());
 		this.reader.registerObserver(this);
+	}
+
+	private String getSerialPort() {
+		return System.getProperty("serialPort");
+		// return "COM3";
 	}
 
 	private Temperature createDefaultTemperature() {
