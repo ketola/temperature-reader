@@ -5,6 +5,9 @@ import static java.util.Collections.synchronizedList;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -27,14 +30,13 @@ public class TemperatureController implements TemperatureObserver {
 
 	private TemperatureReader reader;
 
-	public TemperatureController() {
-		this.reader = new TemperatureReaderSerialPortImpl(getSerialPort());
-		this.reader.registerObserver(this);
-	}
+	@Value("${serial.port}")
+	private String serialPort;
 
-	private String getSerialPort() {
-		return System.getProperty("serialPort");
-		// return "COM3";
+	@PostConstruct
+	private void init() {
+		this.reader = new TemperatureReaderSerialPortImpl(serialPort);
+		this.reader.registerObserver(this);
 	}
 
 	private Temperature createDefaultTemperature() {
