@@ -15,7 +15,7 @@ import ketola.temperature.reader.Temperature;
 import ketola.temperature.reader.Temperature.Source;
 import ketola.temperature.reader.TemperatureObserver;
 import ketola.temperature.reader.TemperatureReader;
-import ketola.temperature.reader.TemperatureReaderDummyImpl;
+import ketola.temperature.reader.TemperatureReaderSerialPortImpl;
 import ketola.temperature.rest.TemperatureHistory.ValuesAndLabels;
 
 @RestController
@@ -36,8 +36,8 @@ public class TemperatureController implements TemperatureObserver {
 
 	@PostConstruct
 	private void init() {
-		// this.reader = new TemperatureReaderSerialPortImpl(serialPort);
-		this.reader = new TemperatureReaderDummyImpl();
+		this.reader = new TemperatureReaderSerialPortImpl(serialPort);
+		// this.reader = new TemperatureReaderDummyImpl();
 		this.reader.registerObserver(this);
 	}
 
