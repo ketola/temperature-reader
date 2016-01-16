@@ -1,8 +1,5 @@
 package ketola.temperature.rest;
 
-import static java.util.Collections.synchronizedList;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -18,19 +15,19 @@ import ketola.temperature.reader.Temperature;
 import ketola.temperature.reader.Temperature.Source;
 import ketola.temperature.reader.TemperatureObserver;
 import ketola.temperature.reader.TemperatureReader;
-import ketola.temperature.reader.TemperatureReaderSerialPortImpl;
+import ketola.temperature.reader.TemperatureReaderDummyImpl;
+import ketola.temperature.rest.TemperatureHistory.ValuesAndLabels;
 
 @RestController
 public class TemperatureController implements TemperatureObserver {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TemperatureController.class);
 
-	private static final int HISTORY_MAX_SIZE = 100;
 	private Temperature latestOutside = createDefaultTemperature();
 	private Temperature latestInside = createDefaultTemperature();
 
-	private List<Temperature> historyInside = synchronizedList(new ArrayList<Temperature>());
-	private List<Temperature> historyOutside = synchronizedList(new ArrayList<Temperature>());
+	private TemperatureHistory historyInside = new TemperatureHistory();
+	private TemperatureHistory historyOutside = new TemperatureHistory();
 
 	private TemperatureReader reader;
 
@@ -39,7 +36,8 @@ public class TemperatureController implements TemperatureObserver {
 
 	@PostConstruct
 	private void init() {
-		this.reader = new TemperatureReaderSerialPortImpl(serialPort);
+		// this.reader = new TemperatureReaderSerialPortImpl(serialPort);
+		this.reader = new TemperatureReaderDummyImpl();
 		this.reader.registerObserver(this);
 	}
 
@@ -64,13 +62,37 @@ public class TemperatureController implements TemperatureObserver {
 	@RequestMapping("/history/outside")
 	public List<Temperature> getHistoryOutside() {
 		LOG.debug("GET /history/outside");
-		return historyOutside;
+		return historyOutside.getHistory();
+	}
+
+	@RequestMapping("/history/outside/values")
+	public List<Double> getHistoryOutsideValues() {
+		LOG.debug("GET /history/outside/values");
+		return historyOutside.getHistoryValues();
+	}
+
+	@RequestMapping("/history/outside/values-and-labels")
+	public ValuesAndLabels getHistoryOutsideValuesAndLabels() {
+		LOG.debug("GET /history/outside/values-and-labels");
+		return historyOutside.getHistoryValuesAndLabels();
 	}
 
 	@RequestMapping("/history/inside")
 	public List<Temperature> getHistoryInside() {
-		LOG.debug("GET /history/inside");
-		return historyInside;
+		LOG.debug("GET /history/inside/values");
+		return historyInside.getHistory();
+	}
+
+	@RequestMapping("/history/inside/values")
+	public List<Double> getHistoryInsideValues() {
+		LOG.debug("GET /history/inside/values");
+		return historyInside.getHistoryValues();
+	}
+
+	@RequestMapping("/history/inside/values-and-labels")
+	public ValuesAndLabels getHistoryinsideValuesAndLabels() {
+		LOG.debug("GET /history/inside/values-and-labels");
+		return historyInside.getHistoryValuesAndLabels();
 	}
 
 	@RequestMapping("/latest/sse")
@@ -86,20 +108,10 @@ public class TemperatureController implements TemperatureObserver {
 
 		if (temperature.getSource() == Source.INSIDE) {
 			this.latestInside = temperature;
-			saveToHistory(temperature, this.historyInside);
+			historyInside.saveToHistory(temperature);
 		} else {
 			this.latestOutside = temperature;
-			saveToHistory(temperature, this.historyOutside);
+			historyOutside.saveToHistory(temperature);
 		}
 	}
-
-	private void saveToHistory(Temperature temperature, List<Temperature> history) {
-		synchronized (history) {
-			if (history.size() > HISTORY_MAX_SIZE) {
-				history.remove(0);
-			}
-			history.add(temperature);
-		}
-	}
-
 }

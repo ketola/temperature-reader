@@ -9,16 +9,15 @@
 	<!-- Optional theme -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 	
+	<link rel="stylesheet" href="css/angular-chart.min.css">
+	
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
    
      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
      
-     <!-- <script src="http://code.highcharts.com/highcharts.js"></script>
-     <script src="http://code.highcharts.com/highcharts-more.js"></script>
-     <script src="http://code.highcharts.com/modules/solid-gauge.src.js"></script>
-     <script src="https://rawgit.com/pablojim/highcharts-ng/master/src/highcharts-ng.js"></script> -->
-     
+     <script src="js/Chart.min.js"></script>
+     <script src="js/angular-chart.min.js"></script>    
      
      <script src="js/temperature.js"></script>
      
@@ -69,6 +68,32 @@
 					</div>
 				</div>
 			</div>
+       </div>
+       
+       <div class="outside col-sm-12">
+       	<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h2 class="panel-title">History Inside</h2>
+				</div>
+				<div class="panel-body">
+			       	<canvas id="lineInside" class="chart chart-line" chart-data="dataInside"
+					  chart-labels="labelsInside" chart-legend="true" chart-series="seriesInside">
+					</canvas> 
+				</div>
+		</div>
+       </div>
+       
+       <div class="outside col-sm-12">
+       	<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h2 class="panel-title">History Outside</h2>
+				</div>
+				<div class="panel-body">
+			       	<canvas id="lineOutside" class="chart chart-line" chart-data="dataOutside"
+					  chart-labels="labelsOutside" chart-legend="true" chart-series="seriesOutside">
+					</canvas> 
+				</div>
+		</div>
        </div>
      </div>
    </body>
