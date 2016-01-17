@@ -14,13 +14,16 @@ public class TemperatureEmitter extends SseEmitter implements TemperatureObserve
 
 	private static final Logger LOG = LoggerFactory.getLogger(TemperatureEmitter.class);
 
+	private TemperatureReader reader;
+
 	public TemperatureEmitter(TemperatureReader reader) {
-		reader.registerObserver(this);
+		this.reader = reader;
+		this.reader.registerObserver(this);
 		onCompletion(new Runnable() {
 			@Override
 			public void run() {
 				LOG.debug("TemperatureEmitter completed");
-				reader.unregisterObserver(TemperatureEmitter.this);
+				TemperatureEmitter.this.reader.unregisterObserver(TemperatureEmitter.this);
 			}
 		});
 	}
@@ -32,6 +35,11 @@ public class TemperatureEmitter extends SseEmitter implements TemperatureObserve
 			send(temperature);
 		} catch (IOException e) {
 			LOG.error("IOException caught while sending temperature", e);
+		} catch (IllegalStateException e) {
+			LOG.error(
+					"IllegalStateException caught while sending temperature. Unregistering this emitter from observing further readings",
+					e);
+			this.reader.unregisterObserver(this);
 		}
 	}
 
